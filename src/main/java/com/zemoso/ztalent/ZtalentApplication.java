@@ -1,13 +1,14 @@
-package com.zemoso.talent.ztalent;
+package com.zemoso.ztalent;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
+@EnableJpaAuditing
 public class ZtalentApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ZtalentApplication.class, args);
 	}
-
 }

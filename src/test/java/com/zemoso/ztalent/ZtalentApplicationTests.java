@@ -1,4 +1,4 @@
-package com.zemoso.talent.ztalent;
+package com.zemoso.ztalent;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
