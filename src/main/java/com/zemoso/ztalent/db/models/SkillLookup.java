@@ -27,8 +27,7 @@ public class SkillLookup implements Serializable {
     @Column(name="ID")
     private Long id;
 
-    @NotBlank
-    @Column(name="TAG")
+    @Column(nullable = false, name="TAG", unique = true)
     private String tag;
 
     @Column(nullable = false, updatable = false)
@@ -41,6 +40,6 @@ public class SkillLookup implements Serializable {
     @LastModifiedDate
     private Date updatedAt;
 
-    @OneToMany(fetch = FetchType.LAZY,mappedBy="skillLookup",cascade = CascadeType.ALL)
-    private Set<EmployeeSkill> employeeSkills = new HashSet<>();
+    @ManyToMany(mappedBy = "skillLookups")
+    private Set<EmployeeRecord> employeeRecords = new HashSet<>();
 }

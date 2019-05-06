@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class InsertEmployeeRequest {
+public class EmployeeRequest {
 
     private String firstName;
     private String lastName;

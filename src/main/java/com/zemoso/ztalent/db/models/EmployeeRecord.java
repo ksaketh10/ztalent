@@ -21,7 +21,7 @@ import java.util.Set;
 public class EmployeeRecord implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="EMP_ID")
+    @Column(name="ID")
     private Long id;
 
     @Column(nullable = false, name="FIRST_NAME")
@@ -46,6 +46,9 @@ public class EmployeeRecord implements Serializable {
     @LastModifiedDate
     private Date updatedAt;
 
-    @OneToMany(fetch = FetchType.LAZY,mappedBy="employeeRecord",cascade = CascadeType.ALL)
-    private Set<EmployeeSkill> employeeSkills = new HashSet<>();
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "employee_skill",
+            joinColumns = @JoinColumn(name = "emp_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id", referencedColumnName = "id"))
+    private Set<SkillLookup> skillLookups = new HashSet<>();
 }
