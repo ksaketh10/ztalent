@@ -53,9 +53,4 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 		return buildResponseEntity.apply(new ErrorDetails(
 				HttpStatus.INTERNAL_SERVER_ERROR, ex));
 	}
-	
-	public static ResponseEntity<Object> buildErrorResponse(Exception ex){
-		return buildResponseEntity.apply(new ErrorDetails(
-				HttpStatus.INTERNAL_SERVER_ERROR, ex));
-	}
 }

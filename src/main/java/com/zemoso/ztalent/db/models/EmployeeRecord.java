@@ -46,7 +46,7 @@ public class EmployeeRecord implements Serializable {
     @LastModifiedDate
     private Date updatedAt;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "employee_skill",
             joinColumns = @JoinColumn(name = "emp_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id", referencedColumnName = "id"))

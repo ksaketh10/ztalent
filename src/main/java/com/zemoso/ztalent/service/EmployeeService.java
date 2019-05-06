@@ -23,6 +23,7 @@ public class EmployeeService implements IEmployeeService {
     @Autowired
     SkillLookupRepository skillLookupRepository;
 
+    // Retrive all employee information and their skills
     @Override
     public RetrieveEmployeesResponse getAllEmployees() {
         RetrieveEmployeesResponse retrieveEmployeesResponse = new RetrieveEmployeesResponse();
@@ -34,18 +35,20 @@ public class EmployeeService implements IEmployeeService {
             emp.setDesignation(employee.getDesignation());
             emp.setFirstName(employee.getFirstName());
             emp.setLastName(employee.getLastName());
-            List<String> skills = new ArrayList<>();
 
+            List<String> skills = new ArrayList<>();
             employee.getSkillLookups().forEach(skillLookup -> skills.add(skillLookup.getTag()));
             emp.setSkills(skills);
+
             employees.add(emp);
         });
 
-        retrieveEmployeesResponse.setEmployees(employees);
         if (employees.size() == 0) throw new NoDataFoundException();
+        retrieveEmployeesResponse.setEmployees(employees);
         return retrieveEmployeesResponse;
     }
 
+    //Insert new Employee record with given information
     @Override
     public GenericResponse insertEmployee(EmployeeRequest employeeRequest) {
         GenericResponse genericResponse = new GenericResponse();
@@ -56,28 +59,13 @@ public class EmployeeService implements IEmployeeService {
             throw new DuplicateEntryException();
         } else {
             EmployeeRecord employeeRecord = new EmployeeRecord();
-            employeeRecord.setFirstName(firstName);
-            employeeRecord.setLastName(lastName);
-            employeeRecord.setDesignation(employeeRequest.getDesignation().trim());
-            employeeRecord.setProjectAssigned(employeeRequest.isProjectAssigned());
-            Set<SkillLookup> skillLookups = new HashSet<>();
-            employeeRequest.getSkills().forEach(skill -> {
-                Long skillId = skillLookupRepository.findIdByTag(skill.trim());
-                if (skillId == null) {
-                    SkillLookup skillLookup = new SkillLookup();
-                    skillLookup.setTag(skill.trim());
-                    skillLookups.add(skillLookup);
-                } else {
-                    skillLookupRepository.findById(skillId).ifPresent(skillLookups::add);
-                }
-            });
-            employeeRecord.setSkillLookups(skillLookups);
-            employeeRecordRepository.save(employeeRecord);
+            saveEmployeeRecord(employeeRequest, employeeRecord);
             genericResponse.setStatus("Record Created");
             return genericResponse;
         }
     }
 
+    //Delete Employee record based on id
     @Override
     public GenericResponse deleteEmployee(Long id) {
         GenericResponse genericResponse = new GenericResponse();
@@ -87,13 +75,22 @@ public class EmployeeService implements IEmployeeService {
         return genericResponse;
     }
 
+    //Update Employee Record based on id
     @Override
     public GenericResponse updateRecord(Long id, EmployeeRequest employeeRequest) {
         GenericResponse genericResponse = new GenericResponse();
         EmployeeRecord employeeRecord = employeeRecordRepository.findById(id).orElseThrow(NoDataFoundException::new);
+        saveEmployeeRecord(employeeRequest, employeeRecord);
+        genericResponse.setStatus("Record Updated");
+        return genericResponse;
+    }
+
+    //Gets new employee request from API and employee record from DB and updates DB
+    private void saveEmployeeRecord(EmployeeRequest employeeRequest, EmployeeRecord employeeRecord) {
         employeeRecord.setProjectAssigned(employeeRequest.isProjectAssigned());
         employeeRecord.setFirstName(employeeRequest.getFirstName().trim());
         employeeRecord.setLastName(employeeRequest.getLastName().trim());
+        employeeRecord.setDesignation(employeeRequest.getDesignation().trim());
         Set<SkillLookup> skillLookups = new HashSet<>();
 
         employeeRequest.getSkills().forEach(skill -> {
@@ -108,7 +105,5 @@ public class EmployeeService implements IEmployeeService {
         });
         employeeRecord.setSkillLookups(skillLookups);
         employeeRecordRepository.save(employeeRecord);
-        genericResponse.setStatus("Record Updated");
-        return genericResponse;
     }
 }

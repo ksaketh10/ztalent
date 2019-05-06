@@ -4,14 +4,21 @@ import com.zemoso.ztalent.controller.request.EmployeeRequest;
 import com.zemoso.ztalent.controller.response.GenericResponse;
 import com.zemoso.ztalent.controller.response.RetrieveEmployeesResponse;
 import com.zemoso.ztalent.service.EmployeeService;
+import com.zemoso.ztalent.service.SkillsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.zemoso.ztalent.controller.exceptions.custom.*;
 
+import java.util.List;
+
 @RestController
 public class EmployeeController {
+
     @Autowired
     EmployeeService employeeService;
+
+    @Autowired
+    SkillsService skillsService;
 
     @GetMapping("/api/getAllEmployees")
     public Object getAllEMployees() {
@@ -64,5 +71,16 @@ public class EmployeeController {
             }
         }
         return genericResponse;
+    }
+
+    @GetMapping("/api/getAllSkills")
+    public Object getAllSkills() {
+       List<String> skills;
+       try {
+           skills = skillsService.getAllSkills();
+       } catch (NoDataFoundException e) {
+           throw e;
+       }
+       return skills;
     }
 }
