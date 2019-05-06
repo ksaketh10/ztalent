@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface EmployeeSkillRepository extends CrudRepository<EmployeeSkill, Long> {
 
-    @Query("select skillId from skillLookup where empId=?")
-    List<Long> findSkillsByEmpId(Long id);
+    @Query(value = "SELECT * FROM EmployeeSkill WHERE emp_id=:id", nativeQuery = true)
+    List<EmployeeSkill> findEmployeeSkills(Long id);
 }

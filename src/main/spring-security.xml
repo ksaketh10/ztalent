@@ -1,0 +1,4 @@
+<security:http auto-config="true" xmlns:security="http://www.springframework.org/schema/security">
+
+    <security:csrf disabled="true" />
+</security:http>

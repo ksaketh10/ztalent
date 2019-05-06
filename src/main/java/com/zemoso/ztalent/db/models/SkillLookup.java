@@ -11,9 +11,11 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "skillLookup")
+@Table(name = "SkillLookup")
 @EntityListeners(AuditingEntityListener.class)
 @JsonIgnoreProperties(value = {"createdAt", "updatedAt"},
         allowGetters = true)
@@ -22,10 +24,11 @@ import java.util.Date;
 public class SkillLookup implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @OneToMany(mappedBy="skillId", cascade = CascadeType.ALL)
+    @Column(name="ID")
     private Long id;
 
     @NotBlank
+    @Column(name="TAG")
     private String tag;
 
     @Column(nullable = false, updatable = false)
@@ -37,4 +40,7 @@ public class SkillLookup implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
     private Date updatedAt;
+
+    @OneToMany(fetch = FetchType.LAZY,mappedBy="skillLookup",cascade = CascadeType.ALL)
+    private Set<EmployeeSkill> employeeSkills = new HashSet<>();
 }

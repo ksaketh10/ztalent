@@ -6,7 +6,7 @@ import com.zemoso.ztalent.controller.response.RetrieveEmployeesResponse;
 
 public interface IEmployeeService {
 
-    RetrieveEmployeesResponse getAllEmployees();
+    RetrieveEmployeesResponse getAllEmployees() throws Exception;
 
     InsertEmployeeResponse insertEmployee(InsertEmployeeRequest insertEmployeeRequest);
 }

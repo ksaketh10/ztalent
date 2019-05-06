@@ -8,9 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SkillLookupRepository extends CrudRepository<SkillLookup, Long> {
 
-    @Query("select tag from skillLookup where id=?")
-    String findTagById(Long id);
-
-    @Query("select id from skillLookup where tag=?")
+    @Query("SELECT id FROM SkillLookup WHERE tag=:tag")
     Long findIdByTag(String tag);
 }

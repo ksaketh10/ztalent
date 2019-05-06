@@ -12,7 +12,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name = "employeeSkill")
+@Table(name = "EmployeeSkill")
 @EntityListeners(AuditingEntityListener.class)
 @JsonIgnoreProperties(value = {"createdAt", "updatedAt"},
         allowGetters = true)
@@ -25,11 +25,11 @@ public class EmployeeSkill implements Serializable {
 
     @ManyToOne
     @JoinColumn(name="empId")
-    private EmployeeRecord empId;
+    private EmployeeRecord employeeRecord;
 
     @ManyToOne
     @JoinColumn(name="skillId")
-    private SkillLookup skillId;
+    private SkillLookup skillLookup;
 
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
