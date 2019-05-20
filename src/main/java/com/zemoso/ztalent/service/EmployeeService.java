@@ -1,109 +1,111 @@
 package com.zemoso.ztalent.service;
 
-import com.zemoso.ztalent.controller.request.EmployeeRequest;
-import com.zemoso.ztalent.controller.response.Employee;
-import com.zemoso.ztalent.controller.response.GenericResponse;
-import com.zemoso.ztalent.controller.response.RetrieveEmployeesResponse;
-import com.zemoso.ztalent.db.EmployeeRecordRepository;
-import com.zemoso.ztalent.db.SkillLookupRepository;
-import com.zemoso.ztalent.db.models.EmployeeRecord;
-import com.zemoso.ztalent.db.models.SkillLookup;
+import com.zemoso.ztalent.controller.exceptions.custom.DuplicateEntryException;
+import com.zemoso.ztalent.controller.exceptions.custom.NoDataFoundException;
+import com.zemoso.ztalent.db.EmployeeRepository;
+import com.zemoso.ztalent.db.ProjectRepository;
+import com.zemoso.ztalent.db.SkillRepository;
+import com.zemoso.ztalent.models.Employee;
+import com.zemoso.ztalent.models.Project;
+import com.zemoso.ztalent.models.Skill;
+import com.zemoso.ztalent.payload.EmployeePayload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.zemoso.ztalent.controller.exceptions.custom.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class EmployeeService implements IEmployeeService {
 
     @Autowired
-    EmployeeRecordRepository employeeRecordRepository;
+    EmployeeRepository employeeRepository;
 
     @Autowired
-    SkillLookupRepository skillLookupRepository;
+    SkillRepository skillRepository;
+
+    @Autowired
+    ProjectRepository projectRepository;
 
     // Retrive all employee information and their skills
     @Override
-    public RetrieveEmployeesResponse getAllEmployees() {
-        RetrieveEmployeesResponse retrieveEmployeesResponse = new RetrieveEmployeesResponse();
-        List<Employee> employees = new ArrayList<>();
+    public List<EmployeePayload> getAllEmployees() {
+        List<EmployeePayload> employees = new ArrayList<>();
 
-        employeeRecordRepository.findAll().forEach(employee -> {
-            Employee emp = new Employee();
-            emp.setId(employee.getId());
-            emp.setDesignation(employee.getDesignation());
-            emp.setFirstName(employee.getFirstName());
-            emp.setLastName(employee.getLastName());
+        employeeRepository.findAll().forEach(employee -> {
+            EmployeePayload employeePayload = new EmployeePayload();
+            employeePayload.setDesignation(employee.getDesignation());
+            employeePayload.setEmpId(employee.getEmpId());
+            employeePayload.setFirstName(employee.getFirstName());
+            employeePayload.setLastName(employee.getLastName());
+            employeePayload.setProjectAssigned(employee.getProjectAssigned());
+            employeePayload.setId(employee.getId());
 
-            List<String> skills = new ArrayList<>();
-            employee.getSkillLookups().forEach(skillLookup -> skills.add(skillLookup.getTag()));
-            emp.setSkills(skills);
+            Set<String> skills = new HashSet<>();
+            employee.getSkills().forEach(skill -> skills.add(skill.getTag()));
+            employeePayload.setSkills(skills);
 
-            employees.add(emp);
+            Set<String> projects = new HashSet<>();
+            employee.getProjects().forEach(project -> projects.add(project.getTitle()));
+            employeePayload.setProjects(projects);
+            employees.add(employeePayload);
         });
 
         if (employees.size() == 0) throw new NoDataFoundException();
-        retrieveEmployeesResponse.setEmployees(employees);
-        return retrieveEmployeesResponse;
+        return employees;
     }
 
-    //Insert new Employee record with given information
+    //Insert new EmployeePayload record with given information
     @Override
-    public GenericResponse insertEmployee(EmployeeRequest employeeRequest) {
-        GenericResponse genericResponse = new GenericResponse();
-        String firstName = employeeRequest.getFirstName().trim();
-        String lastName = employeeRequest.getLastName().trim();
-        Long empId = employeeRecordRepository.getIdByFirstNameAndLastName(firstName, lastName);
+    public void insertEmployee(EmployeePayload employeePayload) {
+        Long empId = employeeRepository.getIdByEmpId(employeePayload.getEmpId());
         if ( empId != null) {
             throw new DuplicateEntryException();
         } else {
-            EmployeeRecord employeeRecord = new EmployeeRecord();
-            saveEmployeeRecord(employeeRequest, employeeRecord);
-            genericResponse.setStatus("Record Created");
-            return genericResponse;
+            Employee employee = new Employee();
+            saveEmployee(employeePayload, employee);
         }
     }
 
-    //Delete Employee record based on id
+    //Delete EmployeePayload record based on id
     @Override
-    public GenericResponse deleteEmployee(Long id) {
-        GenericResponse genericResponse = new GenericResponse();
-        EmployeeRecord employeeRecord = employeeRecordRepository.findById(id).orElseThrow(NoDataFoundException::new);
-        employeeRecordRepository.delete(employeeRecord);
-        genericResponse.setStatus("Record deleted");
-        return genericResponse;
+    public void deleteEmployee(Long id) {
+        Employee employee = employeeRepository.findById(id).orElseThrow(NoDataFoundException::new);
+        employeeRepository.delete(employee);
     }
 
-    //Update Employee Record based on id
+    //Update EmployeePayload Record based on id
     @Override
-    public GenericResponse updateRecord(Long id, EmployeeRequest employeeRequest) {
-        GenericResponse genericResponse = new GenericResponse();
-        EmployeeRecord employeeRecord = employeeRecordRepository.findById(id).orElseThrow(NoDataFoundException::new);
-        saveEmployeeRecord(employeeRequest, employeeRecord);
-        genericResponse.setStatus("Record Updated");
-        return genericResponse;
+    public void updateRecord(Long id, EmployeePayload employeePayload) {
+        Employee employee = employeeRepository.findById(id).orElseThrow(NoDataFoundException::new);
+        saveEmployee(employeePayload, employee);
     }
 
-    //Gets new employee request from API and employee record from DB and updates DB
-    private void saveEmployeeRecord(EmployeeRequest employeeRequest, EmployeeRecord employeeRecord) {
-        employeeRecord.setProjectAssigned(employeeRequest.isProjectAssigned());
-        employeeRecord.setFirstName(employeeRequest.getFirstName().trim());
-        employeeRecord.setLastName(employeeRequest.getLastName().trim());
-        employeeRecord.setDesignation(employeeRequest.getDesignation().trim());
-        Set<SkillLookup> skillLookups = new HashSet<>();
+    private void saveEmployee(EmployeePayload employeePayload, Employee employee) {
+        employee.setFirstName(employeePayload.getFirstName().trim());
+        employee.setLastName(employeePayload.getLastName().trim());
+        employee.setDesignation(employeePayload.getDesignation().trim());
+        employee.setEmpId(employeePayload.getEmpId());
+        employee.setProjectAssigned(employeePayload.getProjectAssigned());
 
-        employeeRequest.getSkills().forEach(skill -> {
-            Long skillId = skillLookupRepository.findIdByTag(skill.trim());
-            if (skillId == null) {
-                SkillLookup skillLookup = new SkillLookup();
-                skillLookup.setTag(skill.trim());
-                skillLookups.add(skillLookup);
-            } else {
-                skillLookupRepository.findById(skillId).ifPresent(skillLookups::add);
-            }
+        Set<Skill> skills = new HashSet<>();
+        employeePayload.getSkills().forEach(skill -> {
+            Long skillId = skillRepository.findIdByTag(skill.trim());
+            Skill skill1 = skillRepository.findById(skillId).orElseThrow(NoDataFoundException::new);
+            skills.add(skill1);
         });
-        employeeRecord.setSkillLookups(skillLookups);
-        employeeRecordRepository.save(employeeRecord);
+        employee.setSkills(skills);
+
+        Set<Project> projects = new HashSet<>();
+        employeePayload.getProjects().forEach(project -> {
+            Long projectId = projectRepository.findIdByProject(project.trim());
+            Project project1 = projectRepository.findById(projectId).orElseThrow(NoDataFoundException::new);
+            projects.add(project1);
+        });
+        employee.setProjects(projects);
+
+        employeeRepository.save(employee);
     }
 }

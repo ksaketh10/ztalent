@@ -1,86 +1,81 @@
 package com.zemoso.ztalent.controller;
 
-import com.zemoso.ztalent.controller.request.EmployeeRequest;
-import com.zemoso.ztalent.controller.response.GenericResponse;
-import com.zemoso.ztalent.controller.response.RetrieveEmployeesResponse;
+import com.zemoso.ztalent.controller.exceptions.custom.DuplicateEntryException;
+import com.zemoso.ztalent.controller.exceptions.custom.InvalidParametersException;
+import com.zemoso.ztalent.controller.exceptions.custom.NoDataFoundException;
+import com.zemoso.ztalent.payload.EmployeePayload;
 import com.zemoso.ztalent.service.EmployeeService;
-import com.zemoso.ztalent.service.SkillsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.zemoso.ztalent.controller.exceptions.custom.*;
-
-import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class EmployeeController {
+
+    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     EmployeeService employeeService;
 
-    @Autowired
-    SkillsService skillsService;
-
-    @GetMapping("/api/getAllEmployees")
-    public Object getAllEMployees() {
-        RetrieveEmployeesResponse retrieveEmployeesResponse;
+    @GetMapping("/employee")
+    public Object getAllEmployees() {
         try {
-            retrieveEmployeesResponse = employeeService.getAllEmployees();
+            return employeeService.getAllEmployees();
         }  catch (NoDataFoundException e) {
+            LOGGER.error("getAllEmployees" + e.getMessage());
             throw e;
         }
-        return retrieveEmployeesResponse;
     }
 
-    @PostMapping("/api/createEmployee")
-    public Object createEmployee(@RequestBody EmployeeRequest employeeRequest) {
-        if (employeeRequest.getFirstName() != null && !employeeRequest.getFirstName().isEmpty()
-                && employeeRequest.getDesignation() != null && !employeeRequest.getDesignation().isEmpty()) {
-            GenericResponse genericResponse;
+    @PostMapping("/employee")
+    public Object createEmployee(@RequestBody EmployeePayload employee) {
+        if (checkValidPayload(employee)) {
             try {
-                genericResponse =  employeeService.insertEmployee(employeeRequest);
+                employeeService.insertEmployee(employee);
+                return ResponseEntity.ok().build();
             } catch (DuplicateEntryException e) {
+                LOGGER.error("createEmployee" + e.getMessage());
                 throw e;
             }
-            return genericResponse;
         } else {
+            LOGGER.error("createEmployee => Invalid Parameters");
             throw new InvalidParametersException();
         }
     }
 
-    @DeleteMapping("/api/delete/{id}")
+    @DeleteMapping("/employee/delete/{id}")
     public Object deleteEmployee(@PathVariable (value = "id") Long id) {
-        GenericResponse genericResponse;
         try {
-            genericResponse = employeeService.deleteEmployee(id);
+            employeeService.deleteEmployee(id);
+            return ResponseEntity.ok().build();
         } catch (NoDataFoundException e) {
+            LOGGER.error("deleteEmployee " + e.getMessage());
             throw e;
         }
-        return genericResponse;
     }
 
-    @PutMapping("/api/update/{id}")
-    public Object updateEmployee(@PathVariable (value = "id") Long id, @RequestBody EmployeeRequest employeeRequest) {
-        GenericResponse genericResponse;
-        if (employeeRequest.getFirstName() == null || employeeRequest.getDesignation() == null) {
+    @PutMapping("/employee/update/{id}")
+    public Object updateEmployee(@PathVariable (value = "id") Long id, @RequestBody EmployeePayload employee) {
+        if (!checkValidPayload(employee)) {
+            LOGGER.error("updateEmployee => Invalid Parameters");
             throw new InvalidParametersException();
         } else {
             try {
-                genericResponse = employeeService.updateRecord(id, employeeRequest);
+                employeeService.updateRecord(id, employee);
+                return ResponseEntity.ok().build();
             } catch (NoDataFoundException e) {
+                LOGGER.error("updateEmployee " + e.getMessage());
                 throw e;
             }
         }
-        return genericResponse;
     }
 
-    @GetMapping("/api/getAllSkills")
-    public Object getAllSkills() {
-       List<String> skills;
-       try {
-           skills = skillsService.getAllSkills();
-       } catch (NoDataFoundException e) {
-           throw e;
-       }
-       return skills;
+    private boolean checkValidPayload(EmployeePayload employee) {
+        return employee.getFirstName() != null && !employee.getFirstName().isEmpty()
+                && employee.getDesignation() != null && !employee.getDesignation().isEmpty()
+                && employee.getEmpId() != null;
     }
 }

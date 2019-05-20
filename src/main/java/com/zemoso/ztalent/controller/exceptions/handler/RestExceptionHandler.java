@@ -53,4 +53,11 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 		return buildResponseEntity.apply(new ErrorDetails(
 				HttpStatus.INTERNAL_SERVER_ERROR, ex));
 	}
+
+	@ExceptionHandler(InvalidCredentialsException.class)
+	protected ResponseEntity<Object> invalidCredentials(InvalidCredentialsException ex,
+													WebRequest request) {
+		return buildResponseEntity.apply(new ErrorDetails(
+				HttpStatus.INTERNAL_SERVER_ERROR, ex));
+	}
 }

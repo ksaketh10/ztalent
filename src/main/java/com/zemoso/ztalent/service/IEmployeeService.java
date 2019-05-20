@@ -1,16 +1,16 @@
 package com.zemoso.ztalent.service;
 
-import com.zemoso.ztalent.controller.request.EmployeeRequest;
-import com.zemoso.ztalent.controller.response.GenericResponse;
-import com.zemoso.ztalent.controller.response.RetrieveEmployeesResponse;
+import com.zemoso.ztalent.payload.EmployeePayload;
+
+import java.util.List;
 
 public interface IEmployeeService {
 
-    RetrieveEmployeesResponse getAllEmployees();
+    List<EmployeePayload> getAllEmployees();
 
-    GenericResponse insertEmployee(EmployeeRequest employeeRequest);
+    void insertEmployee(EmployeePayload employee);
 
-    GenericResponse deleteEmployee(Long id);
+    void deleteEmployee(Long id);
 
-    GenericResponse updateRecord(Long id, EmployeeRequest employeeRequest);
+    void updateRecord(Long id, EmployeePayload employee);
 }

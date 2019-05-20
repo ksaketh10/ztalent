@@ -1,4 +1,4 @@
-package com.zemoso.ztalent.db.models;
+package com.zemoso.ztalent.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
@@ -8,27 +8,16 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Email;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
-@Entity
-@Table(name = "SkillLookup")
+@MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-@JsonIgnoreProperties(value = {"createdAt", "updatedAt"},
-        allowGetters = true)
+@JsonIgnoreProperties(value = {"createdAt", "updatedAt"})
 @Getter
 @Setter
-public class SkillLookup implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="ID")
-    private Long id;
-
-    @Column(nullable = false, name="TAG", unique = true)
-    private String tag;
+abstract class BaseEntity implements Serializable {
 
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -40,6 +29,9 @@ public class SkillLookup implements Serializable {
     @LastModifiedDate
     private Date updatedAt;
 
-    @ManyToMany(mappedBy = "skillLookups")
-    private Set<EmployeeRecord> employeeRecords = new HashSet<>();
+    @Column
+    private String createdBy;
+
+    @Column
+    private String updatedBy;
 }
