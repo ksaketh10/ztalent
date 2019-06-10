@@ -26,7 +26,7 @@ public class UserService implements IUserService {
     @Override
     public void validateUser(User user) {
         for (User user1 : userRepository.findAll()) {
-            if (user1.getEmail().equals(user1.getEmail().trim()) && BCrypt.checkpw(user.getPassword().trim(), user1.getPassword())) {
+            if (user1.getEmail().equals(user.getEmail().trim()) && BCrypt.checkpw(user.getPassword().trim(), user1.getPassword())) {
                 return;
             }
         }
