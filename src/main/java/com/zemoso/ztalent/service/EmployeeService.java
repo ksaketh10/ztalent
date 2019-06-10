@@ -66,6 +66,7 @@ public class EmployeeService implements IEmployeeService {
         } else {
             Employee employee = new Employee();
             employee.setCreatedBy(user);
+            employee.setUpdatedBy(user);
             saveEmployee(employeePayload, employee);
         }
     }

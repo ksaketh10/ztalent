@@ -38,7 +38,6 @@ public class SkillService implements ISkillService {
     public void updateSkill(Long id, Skill skill, String user) {
         Skill skill1 = skillRepository.findById(id).orElseThrow(NoDataFoundException::new);
         skill1.setTag(skill.getTag());
-        skill1.setUpdatedBy(user);
         skillRepository.save(skill1);
     }
 

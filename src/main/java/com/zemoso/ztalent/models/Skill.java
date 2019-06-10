@@ -15,7 +15,7 @@ import java.util.Set;
 @Table(name = "Skill")
 @Getter
 @Setter
-public class Skill extends BaseEntity implements Serializable {
+public class Skill implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="ID")
@@ -26,4 +26,12 @@ public class Skill extends BaseEntity implements Serializable {
 
     @ManyToMany(mappedBy = "skills")
     private Set<Employee> employees = new HashSet<>();
+
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    @CreatedDate
+    private Date createdAt;
+
+    @Column
+    private String createdBy;
 }

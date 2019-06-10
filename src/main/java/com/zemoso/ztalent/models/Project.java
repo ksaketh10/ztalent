@@ -2,9 +2,11 @@ package com.zemoso.ztalent.models;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,4 +25,12 @@ public class Project extends BaseEntity implements Serializable {
 
     @ManyToMany(mappedBy = "projects")
     private Set<Employee> employees = new HashSet<>();
+
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    @CreatedDate
+    private Date createdAt;
+
+    @Column
+    private String createdBy;
 }
