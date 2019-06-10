@@ -31,10 +31,10 @@ public class EmployeeController {
     }
 
     @PostMapping("/employee")
-    public Object createEmployee(@RequestBody EmployeePayload employee) {
+    public Object createEmployee(@RequestBody EmployeePayload employee, @RequestHeader("user") String user) {
         if (checkValidPayload(employee)) {
             try {
-                employeeService.insertEmployee(employee);
+                employeeService.insertEmployee(employee, user);
                 return ResponseEntity.ok().build();
             } catch (DuplicateEntryException e) {
                 LOGGER.error("createEmployee" + e.getMessage());
@@ -46,7 +46,7 @@ public class EmployeeController {
         }
     }
 
-    @DeleteMapping("/employee/delete/{id}")
+    @DeleteMapping("/employee/{id}")
     public Object deleteEmployee(@PathVariable (value = "id") Long id) {
         try {
             employeeService.deleteEmployee(id);
@@ -57,14 +57,14 @@ public class EmployeeController {
         }
     }
 
-    @PutMapping("/employee/update/{id}")
-    public Object updateEmployee(@PathVariable (value = "id") Long id, @RequestBody EmployeePayload employee) {
+    @PutMapping("/employee/{id}")
+    public Object updateEmployee(@PathVariable (value = "id") Long id, @RequestHeader("user") String user, @RequestBody EmployeePayload employee) {
         if (!checkValidPayload(employee)) {
             LOGGER.error("updateEmployee => Invalid Parameters");
             throw new InvalidParametersException();
         } else {
             try {
-                employeeService.updateRecord(id, employee);
+                employeeService.updateRecord(id, employee, user);
                 return ResponseEntity.ok().build();
             } catch (NoDataFoundException e) {
                 LOGGER.error("updateEmployee " + e.getMessage());

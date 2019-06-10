@@ -29,9 +29,9 @@ public class SkillController {
     }
 
     @PostMapping("/skill")
-    public Object insertSkill(@RequestBody Skill skill) {
+    public Object insertSkill( @RequestHeader("user") String user, @RequestBody Skill skill) {
         try  {
-            skillService.insertSkill(skill);
+            skillService.insertSkill(skill, user);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             LOGGER.error("insertSkill "+ e.getMessage());
@@ -40,9 +40,9 @@ public class SkillController {
     }
 
     @PutMapping("/skill/update/{id}")
-    public Object updateSkill(@PathVariable (value = "id") Long id, @RequestBody Skill skill) {
+    public Object updateSkill(@PathVariable (value = "id") Long id, @RequestHeader("user") String user, @RequestBody Skill skill) {
         try  {
-            skillService.updateSkill(id, skill);
+            skillService.updateSkill(id, skill, user);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             LOGGER.error("updateSkill "+ e.getMessage());

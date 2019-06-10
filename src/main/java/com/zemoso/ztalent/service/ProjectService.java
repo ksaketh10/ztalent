@@ -27,15 +27,18 @@ public class ProjectService implements IProjectService {
     }
 
     @Override
-    public void insertProject(Project project) {
-        if (projectRepository.findIdByProject(project.getTitle().trim()) != null) throw new DuplicateEntryException();
+    public void insertProject(Project project, String user) {
+        Long id = projectRepository.findIdByProject(project.getTitle().trim());
+        if (id!= null) throw new DuplicateEntryException();
+        project.setCreatedBy(user);
         projectRepository.save(project);
     }
 
     @Override
-    public void updateProject(Long id, Project project) {
+    public void updateProject(Long id, Project project, String user) {
         Project project1 = projectRepository.findById(id).orElseThrow(NoDataFoundException::new);
         project1.setTitle(project.getTitle());
+        project1.setUpdatedBy(user);
         projectRepository.save(project1);
     }
 

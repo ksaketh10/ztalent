@@ -28,9 +28,9 @@ public class ProjectController {
     }
 
     @PostMapping("/project")
-    public Object insertProject(@RequestBody Project project) {
+    public Object insertProject(@RequestBody Project project, @RequestHeader("user") String user) {
         try  {
-            projectService.insertProject(project);
+            projectService.insertProject(project, user);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             LOGGER.error("insertProject "+ e.getMessage());
@@ -39,9 +39,9 @@ public class ProjectController {
     }
 
     @PutMapping("/project/update/{id}")
-    public Object updateProject(@PathVariable (value = "id") Long id, @RequestBody Project project) {
+    public Object updateProject(@PathVariable (value = "id") Long id, @RequestHeader("user") String user, @RequestBody Project project) {
         try  {
-            projectService.updateProject(id, project);
+            projectService.updateProject(id, project, user);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             LOGGER.error("updateProject "+ e.getMessage());

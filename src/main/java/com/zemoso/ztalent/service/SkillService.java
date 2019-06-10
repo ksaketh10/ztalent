@@ -27,15 +27,18 @@ public class SkillService implements ISkillService {
     }
 
     @Override
-    public void insertSkill(Skill skill) {
-        if (skillRepository.findIdByTag(skill.getTag().trim()) != null) throw new DuplicateEntryException();
+    public void insertSkill(Skill skill, String user) {
+        Long id = skillRepository.findIdByTag(skill.getTag().trim());
+        if (id != null) throw new DuplicateEntryException();
+        skill.setCreatedBy(user);
         skillRepository.save(skill);
     }
 
     @Override
-    public void updateSkill(Long id, Skill skill) {
+    public void updateSkill(Long id, Skill skill, String user) {
         Skill skill1 = skillRepository.findById(id).orElseThrow(NoDataFoundException::new);
         skill1.setTag(skill.getTag());
+        skill1.setUpdatedBy(user);
         skillRepository.save(skill1);
     }
 

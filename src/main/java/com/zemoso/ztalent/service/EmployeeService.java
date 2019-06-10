@@ -59,12 +59,13 @@ public class EmployeeService implements IEmployeeService {
 
     //Insert new EmployeePayload record with given information
     @Override
-    public void insertEmployee(EmployeePayload employeePayload) {
+    public void insertEmployee(EmployeePayload employeePayload, String user) {
         Long empId = employeeRepository.getIdByEmpId(employeePayload.getEmpId());
         if ( empId != null) {
             throw new DuplicateEntryException();
         } else {
             Employee employee = new Employee();
+            employee.setCreatedBy(user);
             saveEmployee(employeePayload, employee);
         }
     }
@@ -78,8 +79,9 @@ public class EmployeeService implements IEmployeeService {
 
     //Update EmployeePayload Record based on id
     @Override
-    public void updateRecord(Long id, EmployeePayload employeePayload) {
+    public void updateRecord(Long id, EmployeePayload employeePayload, String user) {
         Employee employee = employeeRepository.findById(id).orElseThrow(NoDataFoundException::new);
+        employee.setUpdatedBy(user);
         saveEmployee(employeePayload, employee);
     }
 
