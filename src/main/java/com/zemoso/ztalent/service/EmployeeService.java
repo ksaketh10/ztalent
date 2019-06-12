@@ -1,13 +1,15 @@
 package com.zemoso.ztalent.service;
 
-import com.zemoso.ztalent.controller.exceptions.custom.DuplicateEntryException;
-import com.zemoso.ztalent.controller.exceptions.custom.NoDataFoundException;
+import com.zemoso.ztalent.db.UserRepository;
+import com.zemoso.ztalent.exceptions.custom.DuplicateEntryException;
+import com.zemoso.ztalent.exceptions.custom.NoDataFoundException;
 import com.zemoso.ztalent.db.EmployeeRepository;
 import com.zemoso.ztalent.db.ProjectRepository;
 import com.zemoso.ztalent.db.SkillRepository;
 import com.zemoso.ztalent.models.Employee;
 import com.zemoso.ztalent.models.Project;
 import com.zemoso.ztalent.models.Skill;
+import com.zemoso.ztalent.models.User;
 import com.zemoso.ztalent.payload.EmployeePayload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,9 @@ public class EmployeeService implements IEmployeeService {
 
     @Autowired
     ProjectRepository projectRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     // Retrive all employee information and their skills
     @Override
@@ -59,14 +64,15 @@ public class EmployeeService implements IEmployeeService {
 
     //Insert new EmployeePayload record with given information
     @Override
-    public void insertEmployee(EmployeePayload employeePayload, String user) {
+    public void insertEmployee(EmployeePayload employeePayload, Long userId) {
         Long empId = employeeRepository.getIdByEmpId(employeePayload.getEmpId());
+        String email = getEmailByUserId(userId);
         if ( empId != null) {
             throw new DuplicateEntryException();
         } else {
             Employee employee = new Employee();
-            employee.setCreatedBy(user);
-            employee.setUpdatedBy(user);
+            employee.setCreatedBy(email);
+            employee.setUpdatedBy(email);
             saveEmployee(employeePayload, employee);
         }
     }
@@ -80,10 +86,15 @@ public class EmployeeService implements IEmployeeService {
 
     //Update EmployeePayload Record based on id
     @Override
-    public void updateRecord(Long id, EmployeePayload employeePayload, String user) {
+    public void updateRecord(Long id, EmployeePayload employeePayload, Long userId) {
         Employee employee = employeeRepository.findById(id).orElseThrow(NoDataFoundException::new);
-        employee.setUpdatedBy(user);
+        employee.setUpdatedBy(getEmailByUserId(userId));
         saveEmployee(employeePayload, employee);
+    }
+
+    private String getEmailByUserId(Long userId) {
+        User user = userRepository.findById(userId).orElse(new User());
+        return user.getEmail();
     }
 
     private void saveEmployee(EmployeePayload employeePayload, Employee employee) {

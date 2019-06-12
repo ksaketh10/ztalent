@@ -1,4 +1,4 @@
-package com.zemoso.ztalent.controller.exceptions.custom;
+package com.zemoso.ztalent.exceptions.custom;
 
 public class InvalidCredentialsException extends RuntimeException {
 

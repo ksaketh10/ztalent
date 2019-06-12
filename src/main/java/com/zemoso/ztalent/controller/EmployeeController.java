@@ -1,9 +1,10 @@
 package com.zemoso.ztalent.controller;
 
-import com.zemoso.ztalent.controller.exceptions.custom.DuplicateEntryException;
-import com.zemoso.ztalent.controller.exceptions.custom.InvalidParametersException;
-import com.zemoso.ztalent.controller.exceptions.custom.NoDataFoundException;
+import com.zemoso.ztalent.exceptions.custom.DuplicateEntryException;
+import com.zemoso.ztalent.exceptions.custom.InvalidParametersException;
+import com.zemoso.ztalent.exceptions.custom.NoDataFoundException;
 import com.zemoso.ztalent.payload.EmployeePayload;
+import com.zemoso.ztalent.security.TokenProvider;
 import com.zemoso.ztalent.service.EmployeeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,9 @@ public class EmployeeController {
     @Autowired
     EmployeeService employeeService;
 
+    @Autowired
+    private TokenProvider tokenProvider;
+
     @GetMapping("/employee")
     public Object getAllEmployees() {
         try {
@@ -31,10 +35,11 @@ public class EmployeeController {
     }
 
     @PostMapping("/employee")
-    public Object createEmployee(@RequestBody EmployeePayload employee, @RequestHeader("user") String user) {
+    public Object createEmployee(@RequestBody EmployeePayload employee, @RequestHeader("Authorization") String token) {
         if (checkValidPayload(employee)) {
             try {
-                employeeService.insertEmployee(employee, user);
+                Long userId = tokenProvider.getUserIdFromToken(token.replace("Bearer ", ""));
+                employeeService.insertEmployee(employee, userId);
                 return ResponseEntity.ok().build();
             } catch (DuplicateEntryException e) {
                 LOGGER.error("createEmployee" + e.getMessage());
@@ -58,13 +63,14 @@ public class EmployeeController {
     }
 
     @PutMapping("/employee/{id}")
-    public Object updateEmployee(@PathVariable (value = "id") Long id, @RequestHeader("user") String user, @RequestBody EmployeePayload employee) {
+    public Object updateEmployee(@PathVariable (value = "id") Long id, @RequestHeader("Authorization") String token, @RequestBody EmployeePayload employee) {
         if (!checkValidPayload(employee)) {
             LOGGER.error("updateEmployee => Invalid Parameters");
             throw new InvalidParametersException();
         } else {
             try {
-                employeeService.updateRecord(id, employee, user);
+                Long userId = tokenProvider.getUserIdFromToken(token.replace("Bearer ", ""));
+                employeeService.updateRecord(id, employee, userId);
                 return ResponseEntity.ok().build();
             } catch (NoDataFoundException e) {
                 LOGGER.error("updateEmployee " + e.getMessage());

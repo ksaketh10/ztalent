@@ -1,4 +1,4 @@
-package com.zemoso.ztalent.controller.exceptions;
+package com.zemoso.ztalent.exceptions;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,9 +1,11 @@
 package com.zemoso.ztalent.service;
 
-import com.zemoso.ztalent.controller.exceptions.custom.DuplicateEntryException;
-import com.zemoso.ztalent.controller.exceptions.custom.NoDataFoundException;
+import com.zemoso.ztalent.db.UserRepository;
+import com.zemoso.ztalent.exceptions.custom.DuplicateEntryException;
+import com.zemoso.ztalent.exceptions.custom.NoDataFoundException;
 import com.zemoso.ztalent.db.ProjectRepository;
 import com.zemoso.ztalent.models.Project;
+import com.zemoso.ztalent.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,9 @@ public class ProjectService implements IProjectService {
     @Autowired
     ProjectRepository projectRepository;
 
+    @Autowired
+    UserRepository userRepository;
+
     //Get all available projects
     @Override
     public List<String> getAllProjects() {
@@ -27,24 +32,21 @@ public class ProjectService implements IProjectService {
     }
 
     @Override
-    public void insertProject(Project project, String user) {
+    public void insertProject(Project project, Long userId) {
         Long id = projectRepository.findIdByProject(project.getTitle().trim());
         if (id!= null) throw new DuplicateEntryException();
-        project.setCreatedBy(user);
+        project.setCreatedBy(getEmailByUserId(userId));
         projectRepository.save(project);
-    }
-
-    @Override
-    public void updateProject(Long id, Project project, String user) {
-        Project project1 = projectRepository.findById(id).orElseThrow(NoDataFoundException::new);
-        project1.setTitle(project.getTitle());
-        project1.setUpdatedBy(user);
-        projectRepository.save(project1);
     }
 
     @Override
     public void deleteProject(Long id) {
         Project project = projectRepository.findById(id).orElseThrow(NoDataFoundException::new);
         projectRepository.delete(project);
+    }
+
+    private String getEmailByUserId(Long userId) {
+        User user = userRepository.findById(userId).orElse(new User());
+        return user.getEmail();
     }
 }

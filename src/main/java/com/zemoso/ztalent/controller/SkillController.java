@@ -2,6 +2,7 @@ package com.zemoso.ztalent.controller;
 
 import com.zemoso.ztalent.models.Skill;
 import com.zemoso.ztalent.models.User;
+import com.zemoso.ztalent.security.TokenProvider;
 import com.zemoso.ztalent.service.SkillService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,9 @@ public class SkillController {
     @Autowired
     SkillService skillService;
 
+    @Autowired
+    private TokenProvider tokenProvider;
+
     @GetMapping("/skill")
     public Object getSkills() {
         try  {
@@ -29,23 +33,13 @@ public class SkillController {
     }
 
     @PostMapping("/skill")
-    public Object insertSkill( @RequestHeader("user") String user, @RequestBody Skill skill) {
+    public Object insertSkill( @RequestHeader("Authorization") String token, @RequestBody Skill skill) {
         try  {
-            skillService.insertSkill(skill, user);
+            Long userId = tokenProvider.getUserIdFromToken(token.replace("Bearer ", ""));
+            skillService.insertSkill(skill, userId);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             LOGGER.error("insertSkill "+ e.getMessage());
-            throw e;
-        }
-    }
-
-    @PutMapping("/skill/update/{id}")
-    public Object updateSkill(@PathVariable (value = "id") Long id, @RequestHeader("user") String user, @RequestBody Skill skill) {
-        try  {
-            skillService.updateSkill(id, skill, user);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            LOGGER.error("updateSkill "+ e.getMessage());
             throw e;
         }
     }

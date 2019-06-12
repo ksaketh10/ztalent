@@ -8,9 +8,9 @@ public interface IEmployeeService {
 
     List<EmployeePayload> getAllEmployees();
 
-    void insertEmployee(EmployeePayload employee, String user);
+    void insertEmployee(EmployeePayload employee, Long userId);
 
     void deleteEmployee(Long id);
 
-    void updateRecord(Long id, EmployeePayload employee, String user);
+    void updateRecord(Long id, EmployeePayload employee, Long userId);
 }

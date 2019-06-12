@@ -8,9 +8,7 @@ public interface ISkillService {
 
     List<String> getAllSkills();
 
-    void insertSkill(Skill skill, String user);
-
-    void updateSkill(Long id, Skill skill, String user);
+    void insertSkill(Skill skill, Long userId);
 
     void deleteSkill(Long id);
 }

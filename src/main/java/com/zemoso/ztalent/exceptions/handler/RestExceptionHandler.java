@@ -1,6 +1,6 @@
-package com.zemoso.ztalent.controller.exceptions.handler;
+package com.zemoso.ztalent.exceptions.handler;
 
-import com.zemoso.ztalent.controller.exceptions.ErrorDetails;
+import com.zemoso.ztalent.exceptions.ErrorDetails;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import com.zemoso.ztalent.controller.exceptions.custom.*;
+import com.zemoso.ztalent.exceptions.custom.*;
 
 import java.util.function.Function;
 

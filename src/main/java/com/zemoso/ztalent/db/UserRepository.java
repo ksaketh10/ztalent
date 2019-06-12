@@ -1,13 +1,15 @@
 package com.zemoso.ztalent.db;
 
 import com.zemoso.ztalent.models.User;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface UserRepository extends CrudRepository<User, Long> {
+import java.util.Optional;
 
-    @Query("SELECT id FROM User WHERE email=:email")
-    Long findIdByEmail(String email);
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+
+    Optional<User> findByEmail(String email);
+
+    Boolean existsByEmail(String email);
 }

@@ -8,9 +8,7 @@ public interface IProjectService {
 
     List<String> getAllProjects();
 
-    void insertProject(Project project, String user);
-
-    void updateProject(Long id, Project project, String user);
+    void insertProject(Project project, Long userId);
 
     void deleteProject(Long id);
 }

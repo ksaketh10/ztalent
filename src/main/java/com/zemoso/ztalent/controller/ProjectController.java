@@ -1,6 +1,7 @@
 package com.zemoso.ztalent.controller;
 
 import com.zemoso.ztalent.models.Project;
+import com.zemoso.ztalent.security.TokenProvider;
 import com.zemoso.ztalent.service.ProjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,9 @@ public class ProjectController {
     @Autowired
     ProjectService projectService;
 
+    @Autowired
+    private TokenProvider tokenProvider;
+
     @GetMapping("/project")
     public Object getProjects() {
         try  {
@@ -28,23 +32,13 @@ public class ProjectController {
     }
 
     @PostMapping("/project")
-    public Object insertProject(@RequestBody Project project, @RequestHeader("user") String user) {
+    public Object insertProject(@RequestBody Project project, @RequestHeader("Authorization") String token) {
         try  {
-            projectService.insertProject(project, user);
+            Long userId = tokenProvider.getUserIdFromToken(token.replace("Bearer ", ""));
+            projectService.insertProject(project, userId);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             LOGGER.error("insertProject "+ e.getMessage());
-            throw e;
-        }
-    }
-
-    @PutMapping("/project/update/{id}")
-    public Object updateProject(@PathVariable (value = "id") Long id, @RequestHeader("user") String user, @RequestBody Project project) {
-        try  {
-            projectService.updateProject(id, project, user);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            LOGGER.error("updateProject "+ e.getMessage());
             throw e;
         }
     }
